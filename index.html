@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encapsulamento em Java — Aula</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+<section class="slide active title-slide">
+  <div class="eyebrow">Programação Orientada a Objetos</div>
+  <h1>Encapsulamento<br><span class="accent">em Java</span></h1>
+  <p>Teoria + prática + exercícios</p>
+  <div class="bigquote">“O objeto deve ser responsável por proteger o próprio estado.”</div>
+  <p class="muted small">Use <span class="kbd">←</span> <span class="kbd">→</span> ou as setas da tela para navegar.</p>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">01 · Objetivos</span></div>
+  <h2>O que vamos aprender?</h2>
+  <div class="grid">
+    <div class="card"><h3>Conceito</h3><p>Entender o que é encapsulamento e por que ele existe.</p></div>
+    <div class="card"><h3>Acesso</h3><p>Usar <code>private</code>, <code>public</code> e outros modificadores.</p></div>
+    <div class="card"><h3>Getters & Setters</h3><p>Controlar a leitura e alteração dos atributos.</p></div>
+    <div class="card"><h3>Regras de negócio</h3><p>Impedir que o objeto entre em um estado inválido.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">02 · Problema</span></div>
+  <h2>Comece com uma pergunta</h2>
+  <div class="bigquote">“Se eu tenho uma ContaBancaria, qualquer pessoa deveria poder alterar diretamente o saldo?”</div>
+  <pre><code><span class="kw">public class</span> <span class="type">ContaBancaria</span> {
+    <span class="kw">public double</span> saldo;
+}
+
+<span class="type">ContaBancaria</span> conta = <span class="kw">new</span> <span class="type">ContaBancaria</span>();
+conta.saldo = <span class="str">1000</span>;
+conta.saldo = <span class="danger">-50000</span>;</code></pre>
+  <div class="callout warning"><strong>Problema:</strong> nada impede uma alteração inválida.</div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">03 · Conceito</span></div>
+  <h2>O que é encapsulamento?</h2>
+  <p>É o princípio de <strong>esconder detalhes internos</strong> de um objeto e <strong>controlar a forma</strong> como seus dados podem ser acessados ou modificados.</p>
+  <div class="flow">
+    <div class="node">🔒 Dados internos</div><div class="arrow">→</div>
+    <div class="node">Regras</div><div class="arrow">→</div>
+    <div class="node">Métodos públicos</div>
+  </div>
+  <div class="card"><p><strong>Analogia:</strong> você não altera diretamente o saldo do banco. Você solicita uma operação como <code>depositar()</code> ou <code>sacar()</code>, e o sistema verifica as regras.</p></div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">04 · Acesso</span></div>
+  <h2>Modificadores de acesso</h2>
+  <table>
+    <tr><th>Modificador</th><th>Acesso</th></tr>
+    <tr><td><code>public</code></td><td>Qualquer classe</td></tr>
+    <tr><td><code>private</code></td><td>Somente a própria classe</td></tr>
+    <tr><td><code>protected</code></td><td>Pacote + herança</td></tr>
+    <tr><td><em>sem modificador</em></td><td>Classes do mesmo pacote</td></tr>
+  </table>
+  <div class="callout"><strong>Foco da aula:</strong> atributos <code>private</code> + métodos públicos para controlar o acesso.</div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">05 · private</span></div>
+  <h2>Protegendo o atributo</h2>
+  <pre><code><span class="kw">public class</span> <span class="type">Pessoa</span> {
+    <span class="kw">private</span> <span class="type">String</span> nome;
+    <span class="kw">private int</span> idade;
+}</code></pre>
+  <div class="grid">
+    <div class="card">
+      <h3>Antes</h3>
+      <pre><code>pessoa.idade = <span class="danger">-50</span>;</code></pre>
+    </div>
+    <div class="card">
+      <h3>Depois</h3>
+      <pre><code>pessoa.idade = <span class="danger">-50</span>;
+<span class="comment">// Erro de acesso</span></code></pre>
+    </div>
+  </div>
+  <p class="muted">O atributo privado só pode ser acessado diretamente dentro da própria classe.</p>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">06 · Getters & Setters</span></div>
+  <h2>Como acessar um atributo privado?</h2>
+  <pre><code><span class="kw">public</span> <span class="type">String</span> getNome() {
+    <span class="kw">return</span> nome;
+}
+
+<span class="kw">public void</span> setNome(<span class="type">String</span> nome) {
+    <span class="kw">this</span>.nome = nome;
+}
+
+<span class="kw">public int</span> getIdade() {
+    <span class="kw">return</span> idade;
+}
+
+<span class="kw">public void</span> setIdade(<span class="kw">int</span> idade) {
+    <span class="kw">this</span>.idade = idade;
+}</code></pre>
+  <div class="flow"><div class="node">get → consultar</div><div class="arrow">+</div><div class="node">set → alterar</div></div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">07 · Validação</span></div>
+  <h2>Getter e setter não são tudo</h2>
+  <pre><code><span class="kw">public void</span> setIdade(<span class="kw">int</span> idade) {
+    <span class="kw">if</span> (idade &lt; <span class="str">0</span> || idade &gt; <span class="str">150</span>) {
+        System.out.println(<span class="str">"Idade inválida."</span>);
+        <span class="kw">return</span>;
+    }
+
+    <span class="kw">this</span>.idade = idade;
+}</code></pre>
+  <div class="callout"><strong>Ideia central:</strong> o método pode validar antes de alterar o estado.</div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">08 · this</span></div>
+  <h2>O que significa <code>this</code>?</h2>
+  <pre><code><span class="kw">private int</span> idade;
+
+<span class="kw">public void</span> setIdade(<span class="kw">int</span> idade) {
+    <span class="kw">this</span>.idade = idade;
+}</code></pre>
+  <div class="grid">
+    <div class="card"><h3><code>this.idade</code></h3><p>É o atributo <strong>do objeto atual</strong>.</p></div>
+    <div class="card"><h3><code>idade</code></h3><p>É o parâmetro recebido pelo método.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">09 · Prática</span></div>
+  <h2>ContaBancaria</h2>
+  <pre><code><span class="kw">public class</span> <span class="type">ContaBancaria</span> {
+    <span class="kw">private</span> <span class="type">String</span> titular;
+    <span class="kw">private double</span> saldo;
+
+    <span class="kw">public</span> <span class="type">ContaBancaria</span>(<span class="type">String</span> titular) {
+        <span class="kw">this</span>.titular = titular;
+        <span class="kw">this</span>.saldo = <span class="str">0</span>;
+    }
+
+    <span class="kw">public double</span> getSaldo() {
+        <span class="kw">return</span> saldo;
+    }
+}</code></pre>
+  <p>O saldo é privado. Agora precisamos decidir <strong>como ele pode mudar</strong>.</p>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">10 · Prática</span></div>
+  <h2>Comportamentos do objeto</h2>
+  <pre><code><span class="kw">public void</span> depositar(<span class="kw">double</span> valor) {
+    <span class="kw">if</span> (valor &lt;= <span class="str">0</span>) {
+        System.out.println(<span class="str">"Valor inválido."</span>);
+        <span class="kw">return</span>;
+    }
+
+    saldo += valor;
+}
+
+<span class="kw">public boolean</span> sacar(<span class="kw">double</span> valor) {
+    <span class="kw">if</span> (valor &lt;= <span class="str">0</span> || valor &gt; saldo) {
+        System.out.println(<span class="str">"Saque inválido."</span>);
+        <span class="kw">return false</span>;
+    }
+
+    saldo -= valor;
+    <span class="kw">return true</span>;
+}</code></pre>
+  <div class="callout"><strong>Perceba:</strong> não precisamos de <code>setSaldo()</code>. O saldo muda por operações válidas.</div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">11 · Prática</span></div>
+  <h2>Testando</h2>
+  <pre><code><span class="type">ContaBancaria</span> conta =
+    <span class="kw">new</span> <span class="type">ContaBancaria</span>(<span class="str">"João"</span>);
+
+conta.depositar(<span class="str">1000</span>);
+conta.sacar(<span class="str">300</span>);
+
+System.out.println(<span class="str">"Titular: "</span> + conta.getTitular());
+System.out.println(<span class="str">"Saldo: R$ "</span> + conta.getSaldo());</code></pre>
+  <div class="card"><h3>Resultado esperado</h3><p class="accent">Titular: João<br>Saldo: R$ 700.00</p></div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">12 · Insight</span></div>
+  <h2>Encapsulamento ≠ apenas <code>private</code></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Menos adequado</h3>
+      <pre><code><span class="kw">private double</span> saldo;
+
+<span class="kw">public void</span> setSaldo(
+    <span class="kw">double</span> saldo
+) {
+    <span class="kw">this</span>.saldo = saldo;
+}</code></pre>
+      <p>Qualquer valor pode ser colocado.</p>
+    </div>
+    <div class="card">
+      <h3>Mais orientado a objeto</h3>
+      <pre><code><span class="kw">public void</span> depositar(
+    <span class="kw">double</span> valor
+) { ... }
+
+<span class="kw">public boolean</span> sacar(
+    <span class="kw">double</span> valor
+) { ... }</code></pre>
+      <p>O objeto controla suas regras.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">13 · Exercício 1</span></div>
+  <h2>Classe Aluno</h2>
+  <div class="exercise">
+    <div class="card">
+      <h3>Crie</h3>
+      <ul>
+        <li><code>nome</code></li>
+        <li><code>matricula</code></li>
+        <li><code>nota</code></li>
+      </ul>
+      <h3>Regras</h3>
+      <ul>
+        <li>Todos os atributos são <code>private</code>.</li>
+        <li>Nota deve estar entre 0 e 10.</li>
+        <li>Criar getters e setters.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Teste</h3>
+      <pre><code><span class="type">Aluno</span> aluno = <span class="kw">new</span> <span class="type">Aluno</span>();
+
+aluno.setNome(<span class="str">"Carlos"</span>);
+aluno.setMatricula(<span class="str">"2026001"</span>);
+aluno.setNota(<span class="str">8.5</span>);
+
+System.out.println(
+    aluno.getNome()
+);
+
+aluno.setNota(<span class="str">15</span>);</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">14 · Exercício 2</span></div>
+  <h2>Classe Produto</h2>
+  <div class="exercise">
+    <div class="card">
+      <h3>Atributos</h3>
+      <ul><li><code>nome</code></li><li><code>preco</code></li><li><code>quantidade</code></li></ul>
+      <h3>Regras</h3>
+      <ul><li>Preço &gt; 0</li><li>Quantidade ≥ 0</li><li>Não permitir estoque negativo</li></ul>
+    </div>
+    <div class="card">
+      <h3>Métodos</h3>
+      <pre><code>adicionarEstoque(
+    <span class="kw">int</span> quantidade
+)
+
+removerEstoque(
+    <span class="kw">int</span> quantidade
+)
+
+getQuantidade()
+setPreco()
+...</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">15 · Desafio</span></div>
+  <h2>Sistema de Conta</h2>
+  <div class="card">
+    <p><strong>Atributos:</strong> <code>numero</code>, <code>titular</code>, <code>saldo</code></p>
+    <p><strong>Métodos:</strong> <code>depositar()</code>, <code>sacar()</code>, <code>consultarSaldo()</code></p>
+    <p><strong>Regras:</strong> depósito &gt; 0; saque &gt; 0; saque não pode ultrapassar o saldo; titular não pode ser vazio.</p>
+  </div>
+  <div class="bigquote">Desafio: faça a classe proteger seu próprio estado.</div>
+</section>
+
+<section class="slide">
+  <div class="top"><span class="badge">16 · Revisão</span></div>
+  <h2>Perguntas para a turma</h2>
+  <ol>
+    <li>O que é encapsulamento?</li>
+    <li>Para que serve <code>private</code>?</li>
+    <li>O que faz um getter?</li>
+    <li>O que faz um setter?</li>
+    <li>Todo atributo privado precisa de getter e setter?</li>
+    <li>Por que evitar <code>setSaldo()</code>?</li>
+    <li>Onde devem ficar as regras que protegem o objeto?</li>
+  </ol>
+</section>
+
+<section class="slide title-slide">
+  <div class="eyebrow">Fechamento</div>
+  <h2>Mensagem principal</h2>
+  <div class="bigquote">“Encapsular não é simplesmente colocar <code>private</code>. É fazer com que o objeto controle o próprio estado e impeça alterações inválidas.”</div>
+  <p class="muted">Próximos conceitos: abstração · herança · polimorfismo</p>
+</section>
+
+<div class="number" id="bgNumber">01</div>
+</div>
+
+<div id="progress"></div>
+<div id="controls">
+  <button id="prev">← Anterior</button>
+  <button id="next">Próximo →</button>
+  <span class="muted small">Teclado: <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">Home</span> <span class="kbd">End</span></span>
+  <span id="counter">1 / 17</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
